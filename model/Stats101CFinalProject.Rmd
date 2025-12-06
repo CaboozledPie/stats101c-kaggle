@@ -1,0 +1,56 @@
+---
+title: "Stats 101C Final Model"
+author: "Niranjan Bhagwat - 806260040"
+date: "2025-12-06"
+output: html_document
+---
+
+## #Final Model
+
+```{r}
+
+library(gbm)
+library(bestglm)
+library(tidyverse)
+library(leaps)
+library(glmnet)
+
+
+kaggle_train <- read.csv("aluminum_coldRoll_train.csv")
+kaggle_test <- read.csv("aluminum_coldRoll_testNoY.csv")
+
+kaggle_train$alloy <- as.factor(kaggle_train$alloy)
+kaggle_train$cutTemp <- as.factor(kaggle_train$cutTemp)
+kaggle_train$topEdgeMicroChipping <- as.factor(kaggle_train$topEdgeMicroChipping)
+kaggle_train$rollTemp <- as.factor(kaggle_train$rollTemp)
+kaggle_train$blockSource <- as.factor(kaggle_train$blockSource)
+kaggle_train$machineRestart <- as.factor(kaggle_train$machineRestart)
+kaggle_train$firstPassRollPressure <- as.factor(kaggle_train$firstPassRollPressure)
+kaggle_train$secondPassRollPressure <- as.factor(kaggle_train$secondPassRollPressure)
+kaggle_train$contourDefNdx <- as.factor(kaggle_train$contourDefNdx)
+
+kaggle_test$alloy <- as.factor(kaggle_test$alloy)
+kaggle_test$cutTemp <- as.factor(kaggle_test$cutTemp)
+kaggle_test$topEdgeMicroChipping <- as.factor(kaggle_test$topEdgeMicroChipping)
+kaggle_test$rollTemp <- as.factor(kaggle_test$rollTemp)
+kaggle_test$blockSource <- as.factor(kaggle_test$blockSource)
+kaggle_test$machineRestart <- as.factor(kaggle_test$machineRestart)
+kaggle_test$firstPassRollPressure <- as.factor(kaggle_test$firstPassRollPressure)
+kaggle_test$secondPassRollPressure <- as.factor(kaggle_test$secondPassRollPressure)
+kaggle_test$contourDefNdx <- as.factor(kaggle_test$contourDefNdx)
+
+set.seed(111)
+
+boost_model <- gbm(y_passXtremeDurability ~ alloy + cutTemp + rollTemp + firstPassRollPressure + secondPassRollPressure + topEdgeMicroChipping + blockSource + machineRestart + contourDefNdx + clearPassNdx, data = kaggle_amended, distribution = "bernoulli", n.trees = 9600, interaction.depth = 3, shrinkage = 0.01)
+
+test_probabilities <- predict(boost_model, newdata = kaggle_test, n.trees = 9600, type = "response")
+
+submission <- data.frame(ID = kaggle_test$ID, y_passXtremeDurability = test_probabilities)
+
+write.csv(submission, "Stats101CKaggleV9.csv", row.names = FALSE)
+
+
+
+
+```
+
